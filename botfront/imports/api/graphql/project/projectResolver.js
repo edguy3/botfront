@@ -5,6 +5,25 @@ import { importSteps } from './import.utils';
 import { checkIfCan } from '../../../lib/scopes';
 
 export default {
+    Query: {
+        projectGitHistory: async (_, args, context) => {
+            const { cursor, pageSize, projectId } = args;
+            const {
+                commits,
+                hasNextPage,
+            } = await Meteor.callWithPromise('getHistoryOfCommits', projectId, {
+                cursor,
+                pageSize,
+            });
+            return {
+                commits,
+                pageInfo: {
+                    hasNextPage,
+                    endCursor: commits.length ? commits[commits.length - 1]?.sha : '',
+                },
+            };
+        },
+    },
     Mutation: {
         async import(_, args, context) {
             const {
